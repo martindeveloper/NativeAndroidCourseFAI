@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="news_layout" type="layout">@layout/activity_news_single</item>
+</resources>
