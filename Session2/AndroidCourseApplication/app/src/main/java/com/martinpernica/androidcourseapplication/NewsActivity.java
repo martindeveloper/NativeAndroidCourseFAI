@@ -1,5 +1,6 @@
 package com.martinpernica.androidcourseapplication;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.martinpernica.androidcourseapplication.News.NewsDetailActivity;
 import com.martinpernica.androidcourseapplication.News.NewsDetailFragment;
 
 import java.util.ArrayList;
@@ -45,9 +47,21 @@ public class NewsActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        String item = mNewsListAdapter.getItem(position);
+
         if (isDetailFragmentPresents) {
-            mNewsDetailFragment.ShowArticle(mNewsListAdapter.getItem(position));
+            mNewsDetailFragment.ShowArticle(item);
+        }else {
+            Intent newsDetailActivityIntent = new Intent(NewsActivity.this, NewsDetailActivity.class);
+            newsDetailActivityIntent.putExtra("ARTICLE", item);
+
+            startActivity(newsDetailActivityIntent);
         }
     }
 
