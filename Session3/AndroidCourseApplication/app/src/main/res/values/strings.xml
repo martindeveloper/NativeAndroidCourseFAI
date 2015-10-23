@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_btn_ok">OK</string>
+    <string name="app_btn_cancel">Cancel</string>
+    <string name="app_name">AndroidCourseApplication</string>
+
+    <string name="main_login_icon_desc">Login icon</string>
+    <string name="main_login_username">Username:</string>
+    <string name="main_login_password">Password:</string>
+    <string name="main_login_btn">Login</string>
+    <string name="main_login_headline">Welcome back!</string>
+    <string name="main_login_sub">Please use your username and password to log-in to application. We will wait :)</string>
+
+    <string name="news_detail_hint">Tap on news to see the detail</string>
+    <string name="title_activity_news_detail">NewsDetailActivity</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
