@@ -18,7 +18,9 @@ import java.util.ArrayList;
 public class NewsListFragment extends Fragment implements ListView.OnItemClickListener {
 
     private ListView mNewsListView;
+    private BaseAdapter mNewsListAdapter;
     private ArrayList<INewsListFragmentListener> mListeners;
+    private boolean mIsCreateEventDispatched = false;
 
     public interface INewsListFragmentListener {
         void onNewsItemClick(AdapterView<?> parent, View view, int position, long id);
@@ -26,6 +28,7 @@ public class NewsListFragment extends Fragment implements ListView.OnItemClickLi
     }
 
     public NewsListFragment() {
+        // TODO: Retain state on layout change - one panel vs. two panels
         mListeners = new ArrayList<>();
     }
 
@@ -46,6 +49,11 @@ public class NewsListFragment extends Fragment implements ListView.OnItemClickLi
         mNewsListView = (ListView)fragmentView.findViewById(R.id.news_list_view);
         mNewsListView.setOnItemClickListener(this);
 
+        // We already have adapter
+        if(mNewsListAdapter != null) {
+            setListViewAdapter(mNewsListAdapter);
+        }
+
         return fragmentView;
     }
 
@@ -53,9 +61,16 @@ public class NewsListFragment extends Fragment implements ListView.OnItemClickLi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        if (mIsCreateEventDispatched) {
+            // Listeners were already informed
+            return;
+        }
+
         for (INewsListFragmentListener listener : mListeners) {
             listener.onNewsFragmentCreated(this);
         }
+
+        mIsCreateEventDispatched = true;
     }
 
     @Override
@@ -66,6 +81,7 @@ public class NewsListFragment extends Fragment implements ListView.OnItemClickLi
     }
 
     public void setListViewAdapter(BaseAdapter adapter) {
-        mNewsListView.setAdapter(adapter);
+        mNewsListAdapter = adapter;
+        mNewsListView.setAdapter(mNewsListAdapter);
     }
 }

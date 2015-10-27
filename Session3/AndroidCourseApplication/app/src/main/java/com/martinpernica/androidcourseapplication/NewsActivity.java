@@ -38,7 +38,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(null);
         setContentView(R.layout.news_layout);
 
         mRepository = new NewsRepository();
@@ -100,12 +100,6 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
     @Override
     public void onNewsFragmentCreated(final NewsListFragment fragment) {
-        // This method is called also when user is returning from detail fragment to list
-        if (mNewsEntityArrayList.size() != 0) {
-            fragment.setListViewAdapter(mNewsListAdapter);
-            return;
-        }
-
         HttpRequestContainer requestContainer = new HttpRequestContainer() {
             @Override
             public HttpEndpoint getEndpoint() {
