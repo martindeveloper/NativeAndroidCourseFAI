@@ -1,10 +1,11 @@
-package com.martinpernica.androidcourseapplication.Http;
+package com.martinpernica.androidcourseapplication.Http.Request;
 
 import android.util.Log;
 
+import com.martinpernica.androidcourseapplication.Http.HttpEndpoint;
+
 public abstract class HttpRequestContainer {
-    public abstract String getHttpMethod();
-    public abstract String getEndpointUrl();
+    public abstract HttpEndpoint getEndpoint();
     public abstract void onSuccess(String response);
     public abstract void onError(int httpCode, String response);
     public void onException(Exception ex) {
