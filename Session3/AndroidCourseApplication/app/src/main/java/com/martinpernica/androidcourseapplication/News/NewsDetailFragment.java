@@ -16,17 +16,11 @@ public class NewsDetailFragment extends Fragment {
     private TextView mNewsDetailHeadline;
     private TextView mNewsDetailText;
 
-    private NewsEntity mPendingArticle;
-
     public NewsDetailFragment() {}
 
     public void showArticle(NewsEntity article) {
-        if (mNewsDetailHeadline != null) {
-            mNewsDetailHeadline.setText(article.Title);
-            mNewsDetailText.setText(article.Description);
-        }else {
-            mPendingArticle = article;
-        }
+        mNewsDetailHeadline.setText(article.Title);
+        mNewsDetailText.setText(article.Description);
     }
 
     @Override
@@ -38,13 +32,6 @@ public class NewsDetailFragment extends Fragment {
         mNewsDetailHeadline = (TextView)fragmentView.findViewById(R.id.news_detail_headline);
         mNewsDetailText = (TextView)fragmentView.findViewById(R.id.news_detail_text);
 
-        if (mPendingArticle != null) {
-            showArticle(mPendingArticle);
-            mPendingArticle = null;
-        }
-
         return fragmentView;
     }
-
-
 }

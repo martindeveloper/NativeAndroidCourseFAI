@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.martinpernica.androidcourseapplication.Http.HttpEndpoint;
 import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestAsyncTask;
 import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestContainer;
+import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestThread;
 import com.martinpernica.androidcourseapplication.News.Model.NewsEntity;
 import com.martinpernica.androidcourseapplication.News.Model.NewsRepository;
 import com.martinpernica.androidcourseapplication.News.NewsDetailFragment;
@@ -41,9 +42,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
         setContentView(R.layout.news_layout);
 
         mRepository = new NewsRepository();
-
         mFragmentManager = getSupportFragmentManager();
-
         mDetailFragment = (NewsDetailFragment) mFragmentManager.findFragmentById(R.id.news_detail_fragment);
 
         Resources res = getResources();
@@ -67,7 +66,6 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
             mDetailFragment.showArticle(item);
         } else {
             mDetailFragment = new NewsDetailFragment();
-            mDetailFragment.showArticle(item);
 
             FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
 
@@ -76,6 +74,11 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
             fragmentTransaction.addToBackStack(String.format("%d", position));
             fragmentTransaction.commit();
+
+            // We must force to execute transactions because we need to access UI elements in showArticle method
+            mFragmentManager.executePendingTransactions();
+
+            mDetailFragment.showArticle(item);
         }
     }
 
@@ -84,26 +87,15 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
             mNewsEntityArrayList = mRepository.parseJsonResponse(response);
             mNewsListAdapter = new ArrayAdapter<>(NewsActivity.this, android.R.layout.simple_list_item_1, mNewsEntityArrayList);
 
-            // To touch views we must be on UI thread
-            NewsActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    fragment.setListViewAdapter(mNewsListAdapter);
-                }
-            });
+            fragment.setListViewAdapter(mNewsListAdapter);
         } catch (JSONException ex) {
             NewsActivity.this.showDownloadErrorToast();
         }
     }
 
     private void showDownloadErrorToast() {
-        NewsActivity.this.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Toast errorToast = Toast.makeText(NewsActivity.this, "Error: Can not download latest news :(", Toast.LENGTH_LONG);
-                errorToast.show();
-            }
-        });
+        Toast errorToast = Toast.makeText(NewsActivity.this, "Error: Can not download latest news :(", Toast.LENGTH_LONG);
+        errorToast.show();
     }
 
     @Override
@@ -114,7 +106,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
             return;
         }
 
-        AsyncTask requestAsyncTask = new HttpRequestAsyncTask().execute(new HttpRequestContainer() {
+        HttpRequestContainer requestContainer = new HttpRequestContainer() {
             @Override
             public HttpEndpoint getEndpoint() {
                 HttpEndpoint endpoint = new HttpEndpoint();
@@ -133,6 +125,11 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
             public void onError(final int httpCode, String response) {
                 NewsActivity.this.showDownloadErrorToast();
             }
-        });
+        };
+
+        //HttpRequestThread requestThread = new HttpRequestThread(NewsActivity.this);
+        //requestThread.startRequest(requestContainer);
+
+        AsyncTask requestAsyncTask = new HttpRequestAsyncTask().execute(requestContainer);
     }
 }

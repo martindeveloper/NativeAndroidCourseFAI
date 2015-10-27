@@ -1,12 +1,18 @@
 package com.martinpernica.androidcourseapplication.Http.Request;
 
+import android.content.Context;
+import android.os.Handler;
+
 import com.martinpernica.androidcourseapplication.Http.HttpHelper;
+import com.martinpernica.androidcourseapplication.Http.Response.HttpResponseContainer;
 
 public class HttpRequestThread {
     private Thread mRequestThread;
+    private Handler mMainLooperHandler;
     private boolean mIsWorking = false;
 
-    public HttpRequestThread() {
+    public HttpRequestThread(Context context) {
+        mMainLooperHandler = new Handler(context.getMainLooper());
     }
 
     public void killRequest() {
@@ -27,7 +33,18 @@ public class HttpRequestThread {
         mRequestThread = new Thread() {
             public void run() {
                 HttpHelper httpHelper = new HttpHelper();
-                httpHelper.sendRequest(container);
+                final HttpResponseContainer responseContainer = httpHelper.sendRequest(container);
+
+                mMainLooperHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (responseContainer.IsOK) {
+                            responseContainer.RequestContainer.onSuccess(responseContainer.Response);
+                        } else {
+                            responseContainer.RequestContainer.onError(responseContainer.StatusCode, responseContainer.Response);
+                        }
+                    }
+                });
 
                 mIsWorking = false;
             }

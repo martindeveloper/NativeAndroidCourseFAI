@@ -1,6 +1,9 @@
 package com.martinpernica.androidcourseapplication.Http;
 
+import android.util.Log;
+
 import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestContainer;
+import com.martinpernica.androidcourseapplication.Http.Response.HttpResponseContainer;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -10,8 +13,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class HttpHelper {
-    public void sendRequest(HttpRequestContainer container) {
+    public HttpResponseContainer sendRequest(HttpRequestContainer container) {
         HttpURLConnection connection = null;
+        HttpResponseContainer responseContainer = new HttpResponseContainer();
 
         try{
             HttpEndpoint endpoint = container.getEndpoint();
@@ -22,20 +26,21 @@ public class HttpHelper {
             connection.setRequestMethod(connection.getRequestMethod());
 
             int responseCode = connection.getResponseCode();
-            String responseBody = readInputStreamToString(connection.getInputStream());
 
-            if(responseCode == 200) {
-                container.onSuccess(responseBody);
-            }else {
-                container.onError(responseCode, responseBody);
-            }
+            responseContainer.Response = readInputStreamToString(connection.getInputStream());
+            responseContainer.StatusCode = responseCode;
+            responseContainer.IsOK = responseCode == 200;
+            responseContainer.RequestContainer = container;
+
         }catch(Exception ex) {
-            container.onException(ex);
+            Log.d(HttpHelper.class.toString(), String.format("Unhandled exception - %s", ex.getMessage()));
         }finally {
             if(connection != null){
                 connection.disconnect();
             }
         }
+
+        return responseContainer;
     }
 
     public String readInputStreamToString(InputStream inputStream) {
