@@ -12,6 +12,7 @@ public class HttpRequestThread {
     public void killRequest() {
         if (mRequestThread != null && mIsWorking) {
             mRequestThread.interrupt();
+            mIsWorking = false;
         }
     }
 
@@ -27,6 +28,8 @@ public class HttpRequestThread {
             public void run() {
                 HttpHelper httpHelper = new HttpHelper();
                 httpHelper.sendRequest(container);
+
+                mIsWorking = false;
             }
         };
 
