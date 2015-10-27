@@ -1,6 +1,5 @@
 package com.martinpernica.androidcourseapplication;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentManager;
@@ -14,22 +13,22 @@ import android.widget.Toast;
 
 import com.martinpernica.androidcourseapplication.Http.HttpEndpoint;
 import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestAsyncTask;
-import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestThread;
 import com.martinpernica.androidcourseapplication.Http.Request.HttpRequestContainer;
 import com.martinpernica.androidcourseapplication.News.Model.NewsEntity;
+import com.martinpernica.androidcourseapplication.News.Model.NewsRepository;
 import com.martinpernica.androidcourseapplication.News.NewsDetailFragment;
 import com.martinpernica.androidcourseapplication.News.NewsListFragment;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
 public class NewsActivity extends AppCompatActivity implements NewsListFragment.INewsListFragmentListener {
 
-    private ArrayList<NewsEntity> mNewsArray = new ArrayList<>();
+    private NewsRepository mRepository;
+    private ArrayList<NewsEntity> mNewsEntityArrayList = new ArrayList<>();
     private ArrayAdapter<NewsEntity> mNewsListAdapter;
-    private NewsDetailFragment mNewsDetailFragment;
+
     private FragmentManager mFragmentManager;
     private NewsListFragment mListFragment;
     private NewsDetailFragment mDetailFragment;
@@ -41,9 +40,11 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.news_layout);
 
+        mRepository = new NewsRepository();
+
         mFragmentManager = getSupportFragmentManager();
 
-        mNewsDetailFragment = (NewsDetailFragment) mFragmentManager.findFragmentById(R.id.news_detail_fragment);
+        mDetailFragment = (NewsDetailFragment) mFragmentManager.findFragmentById(R.id.news_detail_fragment);
 
         Resources res = getResources();
         mIsDetailFragmentPresents = res.getBoolean(R.bool.news_has_two_panels);
@@ -63,7 +64,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
         NewsEntity item = mNewsListAdapter.getItem(position);
 
         if (mIsDetailFragmentPresents) {
-            mNewsDetailFragment.showArticle(item);
+            mDetailFragment.showArticle(item);
         } else {
             mDetailFragment = new NewsDetailFragment();
             mDetailFragment.showArticle(item);
@@ -80,20 +81,8 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
     private void onNewsDownloaded(final NewsListFragment fragment, String response) {
         try {
-            JSONArray newsArray = new JSONArray(response);
-            mNewsArray.clear();
-
-            for (int i = 0; i < newsArray.length(); i++) {
-                JSONObject jsonobject = newsArray.getJSONObject(i);
-
-                NewsEntity newsEntity = new NewsEntity();
-                newsEntity.Title = jsonobject.getString("title");
-                newsEntity.Description = jsonobject.getString("description");
-
-                mNewsArray.add(newsEntity);
-            }
-
-            mNewsListAdapter = new ArrayAdapter<>(NewsActivity.this, android.R.layout.simple_list_item_1, mNewsArray);
+            mNewsEntityArrayList = mRepository.parseJsonResponse(response);
+            mNewsListAdapter = new ArrayAdapter<>(NewsActivity.this, android.R.layout.simple_list_item_1, mNewsEntityArrayList);
 
             // To touch views we must be on UI thread
             NewsActivity.this.runOnUiThread(new Runnable() {
@@ -102,21 +91,25 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
                     fragment.setListViewAdapter(mNewsListAdapter);
                 }
             });
-        } catch (Exception ex) {
-            NewsActivity.this.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Toast errorToast = Toast.makeText(NewsActivity.this, "Error: Can not download latest news :(", Toast.LENGTH_LONG);
-                    errorToast.show();
-                }
-            });
+        } catch (JSONException ex) {
+            NewsActivity.this.showDownloadErrorToast();
         }
+    }
+
+    private void showDownloadErrorToast() {
+        NewsActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast errorToast = Toast.makeText(NewsActivity.this, "Error: Can not download latest news :(", Toast.LENGTH_LONG);
+                errorToast.show();
+            }
+        });
     }
 
     @Override
     public void onNewsFragmentCreated(final NewsListFragment fragment) {
-        // This method is called also when display is rotated, we do not want download data again
-        if (mNewsArray.size() != 0) {
+        // This method is called also when user is returning from detail fragment to list
+        if (mNewsEntityArrayList.size() != 0) {
             fragment.setListViewAdapter(mNewsListAdapter);
             return;
         }
@@ -133,18 +126,12 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
             @Override
             public void onSuccess(String response) {
-                onNewsDownloaded(fragment, response);
+                NewsActivity.this.onNewsDownloaded(fragment, response);
             }
 
             @Override
             public void onError(final int httpCode, String response) {
-                NewsActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast errorToast = Toast.makeText(NewsActivity.this, String.format("Error: Can not download latest news - API respond code was %d :(", httpCode), Toast.LENGTH_LONG);
-                        errorToast.show();
-                    }
-                });
+                NewsActivity.this.showDownloadErrorToast();
             }
         });
     }
