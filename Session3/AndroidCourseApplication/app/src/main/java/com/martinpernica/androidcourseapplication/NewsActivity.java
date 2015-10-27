@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
+import com.martinpernica.androidcourseapplication.News.Model.NewsEntity;
 import com.martinpernica.androidcourseapplication.News.NewsDetailFragment;
 import com.martinpernica.androidcourseapplication.News.NewsListFragment;
 
@@ -16,8 +17,8 @@ import java.util.ArrayList;
 
 public class NewsActivity extends AppCompatActivity implements NewsListFragment.INewsListFragmentListener {
 
-    private ArrayList<String> mNewsArray = new ArrayList<>();
-    private ArrayAdapter<String> mNewsListAdapter;
+    private ArrayList<NewsEntity> mNewsArray = new ArrayList<>();
+    private ArrayAdapter<NewsEntity> mNewsListAdapter;
 
     private NewsDetailFragment mNewsDetailFragment;
 
@@ -55,13 +56,15 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
     private void populateTempData() {
         for (int i = 0; i < 30; i++) {
-            mNewsArray.add(String.format("Item %d", (i + 1)));
+            NewsEntity entity = new NewsEntity();
+            entity.Title = String.format("Item %d", (i + 1));
+            mNewsArray.add(entity);
         }
     }
 
     @Override
     public void onNewsItemClick(AdapterView<?> parent, View view, int position, long id) {
-        String item = mNewsListAdapter.getItem(position);
+        NewsEntity item = mNewsListAdapter.getItem(position);
 
         if (mIsDetailFragmentPresents) {
             mNewsDetailFragment.showArticle(item);

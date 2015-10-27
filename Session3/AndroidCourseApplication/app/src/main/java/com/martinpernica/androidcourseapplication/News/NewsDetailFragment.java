@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.martinpernica.androidcourseapplication.News.Model.NewsEntity;
 import com.martinpernica.androidcourseapplication.R;
 
 public class NewsDetailFragment extends Fragment {
@@ -15,13 +16,13 @@ public class NewsDetailFragment extends Fragment {
     private TextView mNewsDetailHeadline;
     private TextView mNewsDetailText;
 
-    private String mPendingArticle;
+    private NewsEntity mPendingArticle;
 
     public NewsDetailFragment() {}
 
-    public void showArticle(String article) {
+    public void showArticle(NewsEntity article) {
         if (mNewsDetailHeadline != null) {
-            mNewsDetailHeadline.setText(article);
+            mNewsDetailHeadline.setText(article.Title);
         }else {
             mPendingArticle = article;
         }
