@@ -1,5 +1,6 @@
 package com.martinpernica.androidcourseapplication;
 
+import android.content.res.Resources;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +25,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
     private NewsListFragment mListFragment;
     private NewsDetailFragment mDetailFragment;
 
-    private boolean isDetailFragmentPresents = false;
+    private boolean mIsDetailFragmentPresents = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +36,12 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
 
         mFragmentManager = getSupportFragmentManager();
 
-        // TODO: When is app rotated, system will still find the fragment, need a fix
         mNewsDetailFragment = (NewsDetailFragment)mFragmentManager.findFragmentById(R.id.news_detail_fragment);
-        isDetailFragmentPresents = (mNewsDetailFragment != null);
 
-        if (!isDetailFragmentPresents) {
+        Resources res = getResources();
+        mIsDetailFragmentPresents = res.getBoolean(R.bool.news_has_two_panels);
+
+        if (!mIsDetailFragmentPresents) {
             mListFragment = new NewsListFragment();
 
             FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
@@ -61,7 +63,7 @@ public class NewsActivity extends AppCompatActivity implements NewsListFragment.
     public void onNewsItemClick(AdapterView<?> parent, View view, int position, long id) {
         String item = mNewsListAdapter.getItem(position);
 
-        if (isDetailFragmentPresents) {
+        if (mIsDetailFragmentPresents) {
             mNewsDetailFragment.showArticle(item);
         }else {
             mDetailFragment = new NewsDetailFragment();

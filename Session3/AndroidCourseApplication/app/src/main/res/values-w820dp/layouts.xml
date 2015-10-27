@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="news_layout" type="layout">@layout/activity_news_two_panels</item>
+    <item name="news_has_two_panels" type="bool">true</item>
 </resources>
