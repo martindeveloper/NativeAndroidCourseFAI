@@ -53,16 +53,14 @@ public class NewsListFragment extends Fragment implements ListView.OnItemClickLi
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        for (INewsListFragmentListener listener :
-                mListeners) {
+        for (INewsListFragmentListener listener : mListeners) {
             listener.onNewsFragmentCreated(this);
         }
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        for (INewsListFragmentListener listener :
-                mListeners) {
+        for (INewsListFragmentListener listener : mListeners) {
             listener.onNewsItemClick(parent, view, position, id);
         }
     }

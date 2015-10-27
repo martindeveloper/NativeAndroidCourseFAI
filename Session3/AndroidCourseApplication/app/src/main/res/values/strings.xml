@@ -11,8 +11,6 @@
     <string name="main_login_sub">Please use your username and password to log-in to application. We will wait :)</string>
 
     <string name="news_detail_hint">Tap on news to see the detail</string>
+    <string name="news_list_title">List of news</string>
     <string name="title_activity_news_detail">NewsDetailActivity</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

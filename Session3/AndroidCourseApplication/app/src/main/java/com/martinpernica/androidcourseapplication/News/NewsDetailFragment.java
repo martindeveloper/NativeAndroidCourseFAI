@@ -23,6 +23,7 @@ public class NewsDetailFragment extends Fragment {
     public void showArticle(NewsEntity article) {
         if (mNewsDetailHeadline != null) {
             mNewsDetailHeadline.setText(article.Title);
+            mNewsDetailText.setText(article.Description);
         }else {
             mPendingArticle = article;
         }
